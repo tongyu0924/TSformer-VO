@@ -17,14 +17,14 @@ torch.manual_seed(2023)
 def val_epoch(model, val_loader, criterion, args):
     epoch_loss = 0
     with tqdm(val_loader, unit="batch") as tepoch:
-        for images, gt in tepoch:
+        for images, depth, flow, gt in tepoch:
             tepoch.set_description(f"Validating ")
             # for batch_idx, (images, odom) in enumerate(train_loader):
             if torch.cuda.is_available():
-                images, gt = images.cuda(), gt.cuda()
+                images, gt, depth, flow = images.cuda(), gt.cuda(), depth.cuda(), flow.cuda()
 
             # predict pose
-            estimated_pose = model(images.float())
+            estimated_pose = model(images.float(), depth.float(), flow.float())
 
             # compute loss
             loss = compute_loss(estimated_pose, gt, criterion, args)
@@ -40,14 +40,14 @@ def train_epoch(model, train_loader, criterion, optimizer, epoch, tensorboard_wr
     iter = (epoch - 1) * len(train_loader) + 1
 
     with tqdm(train_loader, unit="batch") as tepoch:
-        for images, gt in tepoch:
+        for images, depth, flow, gt in tepoch:
             tepoch.set_description(f"Epoch {epoch}")
             # for batch_idx, (images, odom) in enumerate(train_loader):
             if torch.cuda.is_available():
-                images, gt = images.cuda(), gt.cuda()
+                images, gt, depth, flow = images.cuda(), gt.cuda(), depth.cuda(), flow.cuda()
 
             # predict pose
-            estimated_pose = model(images.float())
+            estimated_pose = model(images.float(), depth.float(), flow.float())
 
             # compute loss
             loss = compute_loss(estimated_pose, gt, criterion, args)
@@ -143,6 +143,8 @@ def compute_loss(y_hat, y, criterion, args):
         y = torch.reshape(y, (y.shape[0], args["window_size"]-1, 6))
         gt_angles = y[:, :, :3].flatten()
         gt_translation = y[:, :, 3:].flatten()
+        
+        print("y", y.shape)
 
         # predict pose
         y_hat = torch.reshape(y_hat, (y_hat.shape[0], args["window_size"]-1, 6))
@@ -151,6 +153,7 @@ def compute_loss(y_hat, y, criterion, args):
 
         # compute custom loss
         k = args["weighted_loss"]
+        print(estimated_angles.shape, gt_angles.shape)
         loss_angles = k * criterion(estimated_angles, gt_angles.float())
         loss_translation = criterion(estimated_translation, gt_translation.float())
         loss =  loss_angles + loss_translation   
@@ -162,7 +165,7 @@ if __name__ == "__main__":
     # set hyperparameters and configuration
     args = {
         "data_dir": "data",
-        "bsize": 4,  # batch size
+        "bsize": 32,  # batch size
         "val_split": 0.1,  # percentage to use as validation data
         "window_size": 2,  # number of frames in window
         "overlap": 1,  # number of frames overlapped between windows
@@ -170,11 +173,16 @@ if __name__ == "__main__":
         "lr": 1e-5,  # learning rate
         "momentum": 0.9,  # SGD momentum
         "weight_decay": 1e-4,  # SGD momentum
+        "lambda_weight": 100,  # 控制旋轉和平移的權重
+        "sigma_weight": 1,    # 控制極幾何約束的懲罰強度
         "epoch": 100,  # train iters each timestep
     	"weighted_loss": None,  # float to weight angles in loss function
       	"pretrained_ViT": False,  # load weights from pre-trained ViT
-        "checkpoint_path": "checkpoints/Exp4",  # path to save checkpoint
+        "weighted_loss": 1.0,  # Default weight for angle loss
+        "motion_loss_weight": 0.5,  # Weight for motion consistency loss
+        "checkpoint_path": "/home/leohsu/tongyu/TSformer-VO/checkpoints/Exp_video_swin_transformer",  # path to save checkpoint
         "checkpoint": None,  # checkpoint
+        # "checkpoint": None
     }
 
     # tiny  - patch_size=16, embed_dim=192, depth=12, num_heads=3
