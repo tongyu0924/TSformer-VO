@@ -126,8 +126,13 @@ def recover_trajectory_and_poses(poses):
 
 if __name__ == "__main__":
   
-    ckpt_path = "checkpoints/Exp1/"
+    ckpt_path = "checkpoints/Exp3/"
+    ckpt_name = "/home/leohsu/tongyu/TSformer-VO/checkpoints/Exp3/checkpoint_model1_exp12"
+    
+    ckpt_path = "/home/leohsu/tongyu/TSformer-VO/checkpoints/Exp_video_swin_transformer
+    "
     ckpt_name = "checkpoint_e80"
+    
     sequences = ["01", "03", "04", "05", "06", "07", "10"]
 
     # read hyperparameters and configuration
@@ -163,7 +168,7 @@ if __name__ == "__main__":
         plt.title("VO - Seq {}".format(sequence))
         plt.xlabel("Translation in x direction [m]")
         plt.ylabel("Translation in z direction [m]")
-        plt.legend(["estimated", "ground truth"]);
+        plt.legend(["estimated", "ground truth"])
 
         # create checkpoints folder
         if not os.path.exists(os.path.join(args["checkpoint_path"], "plots")):
