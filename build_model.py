@@ -6,6 +6,7 @@ from timesformer.models.vit import VisionTransformer
 from functools import partial
 from einops import rearrange, reduce, repeat
 from timesformer.models.helpers import load_pretrained
+from timesformer.models.swin_vit import SwinTransformer3D
 
 
 default_cfgs = {
@@ -54,20 +55,22 @@ def count_parameters(model):
 
 def build_model(args, model_params):
     # build and load model
-    model = VisionTransformer(img_size=model_params["image_size"],
-                              num_classes=model_params["num_classes"],
-                              patch_size=model_params["patch_size"],
-                              embed_dim=model_params["dim"],
-                              depth=model_params["depth"],
-                              num_heads=model_params["heads"],
-                              mlp_ratio=4,
-                              qkv_bias=True,
-                              norm_layer=partial(nn.LayerNorm, eps=1e-6),
-                              drop_rate=0.,
-                              attn_drop_rate=model_params["attn_dropout"],
-                              drop_path_rate=model_params["ff_dropout"],
-                              num_frames=model_params["num_frames"],
-                              attention_type=model_params["attention_type"])
+    model = SwinTransformer3D(
+        img_size=model_params["image_size"],
+        num_classes=model_params["num_classes"],
+        depth=model_params["depth"],
+        num_frames=model_params["num_frames"],
+        # num_heads=model_params["heads"],  # Ensure this is a list/tuple
+        window_size=(2, 7, 7),
+        embed_dim=model_params["dim"],
+        mlp_ratio=4.0,
+        qkv_bias=True,
+        drop_rate=0.0,
+        attn_drop_rate=model_params["attn_dropout"],
+        drop_path_rate=model_params["ff_dropout"],
+        norm_layer=nn.LayerNorm,
+    )
+
 
     if model_params["time_only"]:
         # for time former without spatial layers
