@@ -1,12 +1,31 @@
-# TSformer-VO: an end-to-end Transformer-based model for monocular visual odometry
+# TMonocular Visual Odometry via Swin-based Multimodal Fusion
 
 [![arXiv](https://img.shields.io/badge/cs.CV-arXiv%3A2305.06121-B31B1B.svg)](https://arxiv.org/abs/2305.06121)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/aofrancani/TSformer-VO/blob/main/LICENSE)
 
-Official repository of "[Transformer-based model for monocular visual odometry: a video understanding approach](https://arxiv.org/abs/2305.06121)"
+Official repository of "[Transformer-based model for monocular visual odometry: a video understanding approach](https://arxiv.org/abs/2305.06121)"  
+Original model by [aofrancani/TSformer-VO](https://github.com/aofrancani/TSformer-VO)
 
-## Abstract
-*Estimating the camera pose given images of a single camera is a traditional task in mobile robots and autonomous vehicles. This problem is called monocular visual odometry and it often relies on geometric approaches that require engineering effort for a specific scenario. Deep learning methods have shown to be generalizable after proper training and a considerable amount of available data. Transformer-based architectures have dominated the state-of-the-art in natural language processing and computer vision tasks, such as image and video understanding. In this work, we deal with the monocular visual odometry as a video understanding task to estimate the 6-DoF camera's pose. We contribute by presenting the TSformer-VO model based on spatio-temporal self-attention mechanisms to extract features from clips and estimate the motions in an end-to-end manner. Our approach achieved competitive state-of-the-art performance compared with geometry-based and deep learning-based methods on the KITTI visual odometry dataset, outperforming the DeepVO implementation highly accepted in the visual odometry community.*
+---
+
+## This Fork: Swin-based Multimodal Extension
+
+This fork introduces an enhanced version of TSformer-VO by:
+
+- Replacing the original Timesformer backbone with **Video Swin Transformer** (stages 1~3).
+- Introducing **early fusion of RGB and Depth embeddings** before feature encoding.
+- Retaining the temporal structure of the original architecture while improving its adaptability to multimodal inputs.
+- Evaluating on **KITTI Odometry**, showing improvements over the original model in three key metrics:  
+  - **↓1.9%** Translational Error  
+  - **↓11.5%** Absolute Trajectory Error (ATE)  
+  - **↓8.1%** Relative Pose Error (RPE)
+
+---
+
+## Abstract (for this extension)
+
+*This work builds upon TSformer-VO by incorporating early-stage fusion of RGB and depth inputs via the Video Swin Transformer. We explore the impact of a hierarchical attention-based backbone in visual odometry tasks, treating the problem as a spatiotemporal sequence understanding challenge. Our model demonstrates improved accuracy on the KITTI dataset, highlighting the benefits of Swin-based feature extraction in multimodal settings.*
+
 
 <img src="tsformer-vo.jpg" width=1000>
 
